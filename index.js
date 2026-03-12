@@ -1,16 +1,11 @@
-const express = require("express");
-const axios = require("axios");
-
-const app = express();
-
-app.get("/state", async (req, res) => {
+export default async function handler(req, res) {
 
 const state = req.query.name || "London";
 
 try {
 
-const response = await axios.get(`https://wttr.in/${state}?format=j1`);
-const data = response.data;
+const response = await fetch(`https://wttr.in/${encodeURIComponent(state)}?format=j1`);
+const data = await response.json();
 
 const weather = data.current_condition[0];
 const area = data.nearest_area[0];
@@ -44,17 +39,13 @@ const svg = `
 </svg>
 `;
 
-res.setHeader("Content-Type","image/svg+xml");
+res.setHeader("Content-Type", "image/svg+xml");
 res.send(svg);
 
-} catch(err) {
+} catch {
 
-res.send("Weather error");
+res.status(500).send("Weather error");
 
 }
 
-});
-
-app.listen(3000, () => {
-console.log("Weather API running");
-});
+}
